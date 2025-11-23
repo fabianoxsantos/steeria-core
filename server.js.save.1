@@ -1,0 +1,250 @@
+// server.js – Steeria Core oficial (limpo)
+
+// =========================
+// IMPORTS E CONFIG
+// =========================
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// =========================
+// MIDDLEWARES
+// =========================
+app.use(cors());
+app.use(express.json());
+
+// pasta para arquivos estáticos (dashboards)
+const publicDir = path.join(__dirname, "public");
+app.use(express.static(publicDir));
+
+// =========================
+// ESTADO EM MEMÓRIA
+// =========================
+const estadoSalas = {};     // último dado por sala
+const historicoSalas = {};  // histórico simples por sala
+
+function registraLeitura(sala, dados) {
+  if (!historicoSalas[sala]) historicoSalas[sala] = [];
+  historicoSalas[sala].push(dados);
+
+  // limita histórico a 200 pontos
+  if (historicoSalas[sala].length > 200) {
+    historicoSalas[sala].shift();
+  }
+
+  estadoSalas[sala] = dados;
+}
+
+// =========================
+// ROTAS
+// =========================
+
+// health básico
+app.get("/health", (req, res) => {
+  res.json({
+    ok: true,
+    servico: "Steeria Core",
+    versao: "1.0.0",
+    uptime: process.uptime(),
+    salas: Object.keys(estadoSalas),
+    porta: PORT,
+  });
+});
+
+// raiz – status geral em JSON (teste rápido)
+app.get("/", (req, res) => {
+  res.json({
+    status: "online",
+    servico: "Steeria Core",
+    versao: "1.0.0",
+    salas: Object.keys(estadoSalas),
+    porta: PORT,
+  });
+});
+
+// ingestão de ambiente
+// body esperado:
+// {
+//   "sala": "S01",
+//   "temperatura": 26.8,
+//   "umidade": 60,
+//   "vpd": 1.0,                       // opcional
+//   "origem": "steeria-planilha-google",
+//   "timestamp": "2025-11-14T10:27:39Z" // opcional, será salvo como timestampOrigem
+// }
+app.post("/ingest/ambiente", (req, res) => {
+  const {
+    sala = "S01",
+    temperatura,
+    umidade,
+    vpd = null,
+    origem = "desconhecida",
+    timestamp: timestampOrigem,
+  } = req.body || {};
+
+  if (typeof temperatura !== "number" || typeof umidade !== "number") {
+    return res.status(400).json({
+      error: "temperatura e umidade devem ser números",
+    });
+  }
+
+  const registro = {
+    sala,
+    temperatura,
+    umidade,
+    vpd,
+    origem,
+    // hora REAL da leitura (servidor)
+    timestamp: new Date().toISOString(),
+    // timestamp original enviado pela planilha/Arduino (se vier)
+    timestampOrigem,
+  };
+
+  console.log("📥 Ambiente recebido:", registro);
+  registraLeitura(sala, registro);
+
+  res.json({ status: "ok", recebido: registro });
+});
+app.post('/ingest/ambiente', express.json(), (req, res) => {
+  try {
+    const {
+      timestamp,
+      temperatura,
+      umidade,
+      vpd,
+      sala,
+      orig,
+      bateria_sensor,
+      sensor_online
+    } = req.body;
+
+    const salasValidas = ['SG_01', 'SV_02', 'SF_03', 'SC_04'];
+    if (!salasValidas.includes(sala)) {
+      return res.status(400).json({ erro: 'Código de sala inválido.' });
+    }
+
+    const dado = {
+      timestamp,
+      temperatura,
+      umidade,
+      vpd,
+      sala,
+      origem,
+      bateria_sensor,
+      sensor_online
+    };
+
+    console.log('📥  Recebido AMBIENTE:', JSON.stringify(dado, null, 2));
+
+    const fs = require('fs');
+    const path = `./data/ambiente_${sala}.json`;
+
+    let dadosExistentes = [];
+    if (fs.existsSync(path)) {
+      dadosExistentes = JSON.parse(fs.readFileSync(path));
+    }
+
+    dadosExistentes.push(dado);
+    if (dadosExistentes.length > 500) {
+      dadosExistentes.shift();
+    }
+
+    fs.writeFileSync(path, JSON.stringify(dadosExistentes, null, 2));
+
+    res.json({
+      status: 'ok',
+      recebido: dado,
+      timestampEnvio: new Date().toISOString()
+    });
+
+  } catch (e) {
+    console.error('❌ ERRO /ingest/ambiente:', e);
+    res.status(500).json({ erro: 'Falha ao processar ingestão.' });
+  }
+});
+
+// último estado da sala
+app.get("/status/:sala", (req, res) => {
+app.post('/ingest/ambiente', express.json(), (req, res) => {
+  try {
+    const {
+      timestamp,
+      temperatura,
+      umidade,
+      vpd,
+      sala,
+      origem,
+      bateria_sensor,
+      sensor_online
+    } = req.body;
+
+    const salasValidas = ['SG_01', 'SV_02', 'SF_03', 'SC_04'];
+    if (!salasValidas.includes(sala)) {
+      return res.status(400).json({ erro: 'Código de sala inválido.' });
+    }
+
+    const dado = {
+      timestamp,
+      temperatura,
+      umidade,
+      vpd,
+      sala,
+      origem,
+      bateria_sensor,
+      sensor_online
+    };
+
+    console.log('📥  Recebido AMBIENTE:', JSON.stringify(dado, null, 2));
+
+    const fs = require('fs');
+    const path = `./data/ambiente_${sala}.json`;
+
+    let dadosExistentes = [];
+    if (fs.existsSync(path)) {
+      dadosExistentes = JSON.parse(fs.readFileSync(path));
+    }
+
+    dadosExistentes.push(dado);
+    if (dadosExistentes.length > 500) {
+      dadosExistentes.shift();
+    }
+
+    fs.writeFileSync(path, JSON.stringify(dadosExistentes, null, 2));
+
+    res.json({
+      status: 'ok',
+      recebido: dado,
+      timestampEnvio: new Date().toISOString()
+    });
+
+  } catch (e) {
+    console.error('❌ ERRO /ingest/ambiente:', e);
+    res.status(500).json({ erro: 'Falha ao processar ingestão.' });
+  }
+});
+
+  const sala = req.params.sala;
+  const status = estadoSalas[sala];
+
+  if (!status) {
+    return res.status(404).json({ error: "Sala sem dados ainda." });
+  }
+
+  res.json(status);
+});
+
+// histórico da sala
+app.get("/historico/:sala", (req, res) => {
+  const sala = req.params.sala;
+  res.json(historicoSalas[sala] || []);
+});
+
+// =========================
+// START DO SERVIDOR
+// =========================
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Steeria Core rodando em http://0.0.0.0:${PORT}`);
+});

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Steeria · Salas S01 e Q01</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg: #050711;
+      --card: #111321;
+      --card-border: #2a2f45;
+      --text-main: #f5f5f5;
+      --text-muted: #9da4c4;
+      --accent: #4ddf83;
+      --danger: #ff5c7a;
+      --warning: #ffd86b;
+      --offline: #ff6b6b;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Roboto", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #121528 0, #050711 55%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-main);
+      color: var(--text-main);
+      padding: 32px;
+    }
+
+    .layout {
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    .title {
+      text-align: center;
+      margin-bottom: 24px;
+      letter-spacing: 0.35em;
+      font-size: 14px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 24px;
+    }
+
+    .card {
+      position: relative;
+      background: radial-gradient(circle at top left, #181b30 0, #111321 45%, #0a0b14 100%);
+      border-radius: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85);
+      padding: 36px 40px 32px;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at top right, rgba(77, 223, 131, 0.09), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 32px;
+    }
+
+    .card-title {
+      font-size: 26px;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+    }
+
+    .rows {
+      margin-bottom: 28px;
+    }
+
+    .row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 8px 0;
+    }
+
+    .label {
+      font-size: 18px;
+      color: var(--text-muted);
+    }
+
+    .value {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .unit {
+      font-size: 18px;
+      margin-left: 6px;
+      color: var(--text-muted);
+    }
+
+    .status {
+      text-align: center;
+      margin-bottom: 12px;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .status.online {
+      color: var(--accent);
+    }
+
+    .status.offline {
+      color: var(--offline);
+    }
+
+    .status.warn {
+      color: var(--warning);
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .footer span {
+      color: var(--text-main);
+    }
+
+    /* cores por VPD – só para o número, não mexe no layout */
+    .vpd-good {
+      color: var(--accent);
+    }
+    .vpd-high {
+      color: var(--warning);
+    }
+    .vpd-bad {
+      color: var(--danger);
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 16px;
+      }
+      .card {
+        padding: 28px 24px 24px;
+        border-radius: 24px;
+      }
+      .card-title {
+        font-size: 20px;
+        letter-spacing: 0.3em;
+      }
+      .label {
+        font-size: 16px;
+      }
+      .value {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="title">Painel de Ambiente · GROWLAB</div>
+
+    <div class="grid">
+      <!-- Card Sala S01 -->
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div class="card-title">SALA S01</div>
+            <div class="badge">VEGA / TESTE</div>
+          </div>
+
+          <div class="rows">
+            <div class="row">
+              <div class="label">Temperatura</div>
+              <div class="value">
+                <span id="temp-S01">--</span>
+                <span class="unit">°C</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="label">Umidade</div>
+              <div class="value">
+                <span id="umid-S01">--</span>
+                <span class="unit">%</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="label">VPD</div>
+              <div class="value">
+                <span id="vpd-S01">--</span>
+                <span class="unit">kPa</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="status-S01" class="status offline">Sala offline</div>
+          <div class="footer">
+            Última leitura:
+            <span id="last-S01">--/--/----, --:--:--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Sala Q01 -->
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div class="card-title">SALA Q01</div>
+            <div class="badge">VEGA / TESTE</div>
+          </div>
+
+          <div class="rows">
+            <div class="row">
+              <div class="label">Temperatura</div>
+              <div class="value">
+                <span id="temp-Q01">--</span>
+                <span class="unit">°C</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="label">Umidade</div>
+              <div class="value">
+                <span id="umid-Q01">--</span>
+                <span class="unit">%</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="label">VPD</div>
+              <div class="value">
+                <span id="vpd-Q01">--</span>
+                <span class="unit">kPa</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="status-Q01" class="status offline">Sala offline</div>
+          <div class="footer">
+            Última leitura:
+            <span id="last-Q01">--/--/----, --:--:--</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin; // ex: http://72.60.49.230:3000
+
+    function formatarData(iso) {
+      if (!iso) return '--/--/----, --:--:--';
+      const dt = new Date(iso);
+      if (Number.isNaN(dt.getTime())) return '--/--/----, --:--:--';
+
+      const dia = String(dt.getDate()).padStart(2, '0');
+      const mes = String(dt.getMonth() + 1).padStart(2, '0');
+      const ano = dt.getFullYear();
+      const hh = String(dt.getHours()).padStart(2, '0');
+      const mm = String(dt.getMinutes()).padStart(2, '0');
+      const ss = String(dt.getSeconds()).padStart(2, '0');
+
+      return `${dia}/${mes}/${ano}, ${hh}:${mm}:${ss}`;
+    }
+
+    function classVPD(vpd) {
+      if (vpd == null || Number.isNaN(vpd)) return '';
+      if (vpd >= 0.8 && vpd <= 1.2) return 'vpd-good';
+      if ((vpd >= 0.6 && vpd < 0.8) || (vpd > 1.2 && vpd <= 1.4)) return 'vpd-high';
+      return 'vpd-bad';
+    }
+
+    async function atualizarSala(salaId) {
+      const tempEl = document.getElementById(`temp-${salaId}`);
+      const umidEl = document.getElementById(`umid-${salaId}`);
+      const vpdEl = document.getElementById(`vpd-${salaId}`);
+      const statusEl = document.getElementById(`status-${salaId}`);
+      const lastEl = document.getElementById(`last-${salaId}`);
+
+      try {
+        const resp = await fetch(`${API_BASE}/status/${salaId}`);
+        if (!resp.ok) throw new Error('sem dados');
+
+        const data = await resp.json();
+
+        tempEl.textContent = data.temperatura?.toFixed
+          ? data.temperatura.toFixed(1)
+          : data.temperatura ?? '--';
+
+        umidEl.textContent = data.umidade?.toFixed
+          ? data.umidade.toFixed(0)
+          : data.umidade ?? '--';
+
+        const vpd = data.vpd ?? null;
+        vpdEl.textContent =
+          vpd != null && !Number.isNaN(vpd) ? Number(vpd).toFixed(2) : '--';
+
+        // limpa classes vpd e aplica a nova
+        vpdEl.classList.remove('vpd-good', 'vpd-high', 'vpd-bad');
+        const cls = classVPD(Number(vpd));
+        if (cls) vpdEl.classList.add(cls);
+
+        statusEl.textContent = 'Sala online';
+        statusEl.classList.remove('offline', 'warn');
+        statusEl.classList.add('online');
+
+        lastEl.textContent = formatarData(data.timestamp);
+      } catch (err) {
+        statusEl.textContent = 'Sala offline';
+        statusEl.classList.remove('online', 'warn');
+        statusEl.classList.add('offline');
+
+        tempEl.textContent = '--';
+        umidEl.textContent = '--';
+        vpdEl.textContent = '--';
+        vpdEl.classList.remove('vpd-good', 'vpd-high', 'vpd-bad');
+      }
+    }
+
+    function iniciarPainel() {
+      const salas = ['S01', 'Q01'];
+
+      // primeira carga
+      salas.forEach(atualizarSala);
+
+      // atualiza a cada 10s
+      setInterval(() => {
+        salas.forEach(atualizarSala);
+      }, 10000);
+    }
+
+    document.addEventListener('DOMContentLoaded', iniciarPainel);
+  </script>
+</body>
+</html>
