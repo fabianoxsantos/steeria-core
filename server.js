@@ -1,4 +1,4 @@
-// server.js – Steeria Core oficial (limpo)
+// server.js – Steeria Core oficial (com DATA_DIR)
 
 // =========================
 // IMPORTS E CONFIG
@@ -11,13 +11,18 @@ const fs = require("fs");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const { syncTuyaSF03 } = require("./integrations/tuya_sf03");
+
+// pasta onde ficam os arquivos de histórico (JSON)
+const DATA_DIR = path.join(__dirname, "data");
+
 // =========================
 // MIDDLEWARES
 // =========================
 app.use(cors());
 app.use(express.json());
 
-// pasta para arquivos estáticos (dashboards)
+// pasta para arquivos estáticos (HTML, painel, etc.)
 const publicDir = path.join(__dirname, "public");
 app.use(express.static(publicDir));
 
@@ -36,7 +41,7 @@ function registraLeitura(sala, dados) {
   if (!historicoSalas[sala]) historicoSalas[sala] = [];
   historicoSalas[sala].push(dados);
 
-  // limita histórico a 200 pontos em memória
+  // limita histórico em memória
   if (historicoSalas[sala].length > 200) {
     historicoSalas[sala].shift();
   }
@@ -46,7 +51,7 @@ function registraLeitura(sala, dados) {
 
 // carrega histórico a partir do arquivo JSON de uma sala
 function carregarHistoricoSala(sala) {
-  const filePath = `./data/ambiente_${sala}.json`;
+  const filePath = path.join(DATA_DIR, `ambiente_${sala}.json`);
   if (!fs.existsSync(filePath)) {
     return [];
   }
@@ -56,6 +61,13 @@ function carregarHistoricoSala(sala) {
   } catch (e) {
     console.error(`Erro ao ler histórico da sala ${sala}:`, e);
     return [];
+  }
+}
+
+// garante que a pasta DATA_DIR existe
+function garantirPastaData() {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR);
   }
 }
 
@@ -75,9 +87,10 @@ app.get("/health", (req, res) => {
   });
 });
 
-// raiz – serve o painel (index.html em /public)
+// raiz – se quiser depois podemos apontar para um painel
 app.get("/", (req, res) => {
-  res.sendFile(path.join(publicDir, "index.html"));
+  // se você tiver um painel.html, pode trocar para "painel.html"
+  res.sendFile(path.join(publicDir, "painel.html"));
 });
 
 // =========================
@@ -138,13 +151,10 @@ app.post("/ingest/ambiente", (req, res) => {
     // atualiza memória
     registraLeitura(sala, registro);
 
-    // garante pasta data/
-    if (!fs.existsSync("./data")) {
-      fs.mkdirSync("./data");
-    }
+    // garante pasta data/ e grava arquivo
+    garantirPastaData();
+    const filePath = path.join(DATA_DIR, `ambiente_${sala}.json`);
 
-    // grava em arquivo por sala
-    const filePath = `./data/ambiente_${sala}.json`;
     let dadosExistentes = [];
     if (fs.existsSync(filePath)) {
       try {
@@ -213,7 +223,7 @@ app.get("/api/ambiente/latest", (req, res) => {
   const resultado = {};
 
   SALAS_VALIDAS.forEach((sala) => {
-    const arquivo = `./data/ambiente_${sala}.json`;
+    const arquivo = path.join(DATA_DIR, `ambiente_${sala}.json`);
 
     if (!fs.existsSync(arquivo)) {
       resultado[sala] = null;
@@ -241,7 +251,7 @@ app.get("/api/ambiente/latest", (req, res) => {
 // Histórico completo da sala a partir do arquivo JSON
 app.get("/api/ambiente/:sala", (req, res) => {
   const sala = req.params.sala;
-  const arquivo = `./data/ambiente_${sala}.json`;
+  const arquivo = path.join(DATA_DIR, `ambiente_${sala}.json`);
 
   // aqui NÃO validamos SALAS_VALIDAS pra permitir prefixos livres no futuro se precisar
   if (!fs.existsSync(arquivo)) {
@@ -274,3 +284,25 @@ app.get("/api/ambiente/:sala", (req, res) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Steeria Core rodando em http://0.0.0.0:${PORT}`);
 });
+
+// Função auxiliar para mandar dados para o próprio /ingest/ambiente
+async function enviarParaIngest(dado) {
+  try {
+    const res = await fetch(`http://127.0.0.1:${PORT}/ingest/ambiente`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dado),
+    });
+    if (!res.ok) {
+      console.error("Falha ao enviar ingest:", await res.text());
+    }
+  } catch (e) {
+    console.error("Erro na chamada interna para /ingest/ambiente:", e);
+  }
+}
+
+// Agendador interno: a cada 60s, busca dado da SF_03 na Tuya e manda pro Steeria
+setInterval(() => {
+  syncTuyaSF03(enviarParaIngest);
+}, 60 * 1000);
+

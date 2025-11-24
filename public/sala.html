@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>STEERIA • Detalhe da Sala</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #020617;
+      color: #e5e7eb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .layout {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .sub {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    a.voltar {
+      font-size: 12px;
+      color: #bfdbfe;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(191,219,254,0.4);
+    }
+
+    .cards {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      flex: 1;
+      min-width: 180px;
+      padding: 10px 12px;
+      background: #0b1120;
+      border-radius: 12px;
+      border: 1px solid #1e293b;
+    }
+
+    .label {
+      font-size: 11px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 2px;
+    }
+
+    .value {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .unit {
+      font-size: 11px;
+      opacity: 0.8;
+      margin-left: 3px;
+    }
+
+    .chart-box {
+      background: #020617;
+      border-radius: 16px;
+      border: 1px solid #1e293b;
+      padding: 16px;
+    }
+
+    canvas {
+      max-height: 360px;
+    }
+
+    footer {
+      margin-top: 16px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <header>
+      <div>
+        <h1 id="tituloSala">STEERIA • Sala</h1>
+        <div class="sub">
+          Histórico carregado de <code>/api/ambiente/:sala</code> • pontos mais recentes à direita
+        </div>
+      </div>
+      <div>
+        <a class="voltar" href="/painel.html">← Voltar ao painel geral</a>
+      </div>
+    </header>
+
+    <section class="cards" id="cardsResumo"></section>
+
+    <section class="chart-box">
+      <canvas id="grafico"></canvas>
+    </section>
+
+    <footer id="footerInfo"></footer>
+  </div>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const NOMES = {
+      SG_01: "SG_01 · Germinação",
+      SV_02: "SV_02 · Vegetação",
+      SF_03: "SF_03 · Floração",
+      SC_04: "SC_04 · Secagem & Cura"
+    };
+
+    function getParam(nome) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(nome);
+    }
+
+    function formataDataCurta(ts) {
+      const d = new Date(ts);
+      if (Number.isNaN(d.getTime())) return ts;
+      return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function formataDataLonga(ts) {
+      const d = new Date(ts);
+      if (Number.isNaN(d.getTime())) return ts;
+      return d.toLocaleString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    async function carregarSala() {
+      const sala = getParam("sala") || "SF_03";
+      document.getElementById("tituloSala").innerText =
+        NOMES[sala] || ("STEERIA • " + sala);
+
+      const resp = await fetch(`/api/ambiente/${encodeURIComponent(sala)}`);
+      const json = await resp.json();
+
+      const dados = json.dados || [];
+      if (!dados.length) {
+        document.getElementById("footerInfo").innerText =
+          "Nenhum dado encontrado para esta sala ainda.";
+        return;
+      }
+
+      // resumo (último ponto)
+      const ultimo = dados[dados.length - 1];
+
+      const cards = document.getElementById("cardsResumo");
+      cards.innerHTML = `
+        <div class="card">
+          <div class="label">Temperatura</div>
+          <div class="value">${ultimo.temperatura ?? "–"}<span class="unit">°C</span></div>
+        </div>
+        <div class="card">
+          <div class="label">Umidade</div>
+          <div class="value">${ultimo.umidade ?? "–"}<span class="unit">% UR</span></div>
+        </div>
+        <div class="card">
+          <div class="label">VPD</div>
+          <div class="value">${ultimo.vpd ?? "–"}<span class="unit">kPa</span></div>
+        </div>
+        <div class="card">
+          <div class="label">Origem</div>
+          <div class="value">${ultimo.origem ?? "–"}</div>
+        </div>
+      `;
+
+      // prepara dados do gráfico
+      const labels = dados.map(p => formataDataCurta(p.timestampServidor || p.timestampOrigem || ""));
+      const temp = dados.map(p => p.temperatura ?? null);
+      const umid = dados.map(p => p.umidade ?? null);
+      const vpd = dados.map(p => p.vpd ?? null);
+
+      const ctx = document.getElementById("grafico").getContext("2d");
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Temperatura (°C)",
+              data: temp,
+              borderWidth: 2,
+              tension: 0.25
+            },
+            {
+              label: "Umidade (% UR)",
+              data: umid,
+              borderWidth: 2,
+              tension: 0.25
+            },
+            {
+              label: "VPD (kPa)",
+              data: vpd,
+              borderWidth: 2,
+              tension: 0.25
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: "#e5e7eb", font: { size: 11 } } }
+          },
+          scales: {
+            x: {
+              ticks: { color: "#9ca3af", maxTicksLimit: 8 },
+              grid: { color: "rgba(148,163,184,0.2)" }
+            },
+            y: {
+              ticks: { color: "#9ca3af" },
+              grid: { color: "rgba(148,163,184,0.15)" }
+            }
+          }
+        }
+      });
+
+      document.getElementById("footerInfo").innerText =
+        `Total de pontos: ${dados.length} • Último: ${formataDataLonga(ultimo.timestampServidor || ultimo.timestampOrigem)}`;
+    }
+
+    carregarSala();
+  </script>
+</body>
+</html>
