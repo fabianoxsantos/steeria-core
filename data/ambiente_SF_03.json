@@ -1,93 +1,5 @@
 [
   {
-    "timestampOrigem": "2025-11-25T08:44:54.697Z",
-    "timestampServidor": "2025-11-25T08:44:54.698Z",
-    "sala": "SF_03",
-    "temperatura": 26.8,
-    "umidade": 60,
-    "vpd": 1,
-    "origem": "tuya:SF_03 (mock)",
-    "bateria_sensor": "high",
-    "sensor_online": true
-  },
-  {
-    "timestampOrigem": "2025-11-25T08:45:54.697Z",
-    "timestampServidor": "2025-11-25T08:45:54.699Z",
-    "sala": "SF_03",
-    "temperatura": 26.8,
-    "umidade": 60,
-    "vpd": 1,
-    "origem": "tuya:SF_03 (mock)",
-    "bateria_sensor": "high",
-    "sensor_online": true
-  },
-  {
-    "timestampOrigem": "2025-11-25T08:46:54.697Z",
-    "timestampServidor": "2025-11-25T08:46:54.698Z",
-    "sala": "SF_03",
-    "temperatura": 26.8,
-    "umidade": 60,
-    "vpd": 1,
-    "origem": "tuya:SF_03 (mock)",
-    "bateria_sensor": "high",
-    "sensor_online": true
-  },
-  {
-    "timestampOrigem": "2025-11-25T08:47:54.697Z",
-    "timestampServidor": "2025-11-25T08:47:54.698Z",
-    "sala": "SF_03",
-    "temperatura": 26.8,
-    "umidade": 60,
-    "vpd": 1,
-    "origem": "tuya:SF_03 (mock)",
-    "bateria_sensor": "high",
-    "sensor_online": true
-  },
-  {
-    "timestampOrigem": "2025-11-25T08:48:54.697Z",
-    "timestampServidor": "2025-11-25T08:48:54.698Z",
-    "sala": "SF_03",
-    "temperatura": 26.8,
-    "umidade": 60,
-    "vpd": 1,
-    "origem": "tuya:SF_03 (mock)",
-    "bateria_sensor": "high",
-    "sensor_online": true
-  },
-  {
-    "timestampOrigem": "2025-11-25T08:49:54.698Z",
-    "timestampServidor": "2025-11-25T08:49:54.699Z",
-    "sala": "SF_03",
-    "temperatura": 26.8,
-    "umidade": 60,
-    "vpd": 1,
-    "origem": "tuya:SF_03 (mock)",
-    "bateria_sensor": "high",
-    "sensor_online": true
-  },
-  {
-    "timestampOrigem": "2025-11-25T08:50:54.698Z",
-    "timestampServidor": "2025-11-25T08:50:54.700Z",
-    "sala": "SF_03",
-    "temperatura": 26.8,
-    "umidade": 60,
-    "vpd": 1,
-    "origem": "tuya:SF_03 (mock)",
-    "bateria_sensor": "high",
-    "sensor_online": true
-  },
-  {
-    "timestampOrigem": "2025-11-22T10:05:00.000Z",
-    "timestampServidor": "2025-11-25T08:51:35.067Z",
-    "sala": "SF_03",
-    "temperatura": 26.5,
-    "umidade": 60,
-    "vpd": 0.95,
-    "origem": "Tuya_SF_03",
-    "bateria_sensor": "high",
-    "sensor_online": true
-  },
-  {
     "timestampOrigem": "2025-11-25T08:51:54.698Z",
     "timestampServidor": "2025-11-25T08:51:54.700Z",
     "sala": "SF_03",
@@ -5491,6 +5403,94 @@
   {
     "timestampOrigem": "2025-11-25T16:32:54.858Z",
     "timestampServidor": "2025-11-25T16:32:54.860Z",
+    "sala": "SF_03",
+    "temperatura": 26.8,
+    "umidade": 60,
+    "vpd": 1,
+    "origem": "tuya:SF_03 (mock)",
+    "bateria_sensor": "high",
+    "sensor_online": true
+  },
+  {
+    "timestampOrigem": "2025-11-25T16:33:54.858Z",
+    "timestampServidor": "2025-11-25T16:33:54.860Z",
+    "sala": "SF_03",
+    "temperatura": 26.8,
+    "umidade": 60,
+    "vpd": 1,
+    "origem": "tuya:SF_03 (mock)",
+    "bateria_sensor": "high",
+    "sensor_online": true
+  },
+  {
+    "timestampOrigem": "2025-11-25T16:34:54.858Z",
+    "timestampServidor": "2025-11-25T16:34:54.860Z",
+    "sala": "SF_03",
+    "temperatura": 26.8,
+    "umidade": 60,
+    "vpd": 1,
+    "origem": "tuya:SF_03 (mock)",
+    "bateria_sensor": "high",
+    "sensor_online": true
+  },
+  {
+    "timestampOrigem": "2025-11-25T16:35:54.859Z",
+    "timestampServidor": "2025-11-25T16:35:54.860Z",
+    "sala": "SF_03",
+    "temperatura": 26.8,
+    "umidade": 60,
+    "vpd": 1,
+    "origem": "tuya:SF_03 (mock)",
+    "bateria_sensor": "high",
+    "sensor_online": true
+  },
+  {
+    "timestampOrigem": "2025-11-22T10:05:00.000Z",
+    "timestampServidor": "2025-11-25T16:36:34.412Z",
+    "sala": "SF_03",
+    "temperatura": 26.5,
+    "umidade": 60,
+    "vpd": 0.95,
+    "origem": "Tuya_SF_03",
+    "bateria_sensor": "high",
+    "sensor_online": true
+  },
+  {
+    "timestampOrigem": "2025-11-25T16:36:54.859Z",
+    "timestampServidor": "2025-11-25T16:36:54.861Z",
+    "sala": "SF_03",
+    "temperatura": 26.8,
+    "umidade": 60,
+    "vpd": 1,
+    "origem": "tuya:SF_03 (mock)",
+    "bateria_sensor": "high",
+    "sensor_online": true
+  },
+  {
+    "timestampOrigem": "2025-11-25T16:37:54.859Z",
+    "timestampServidor": "2025-11-25T16:37:54.861Z",
+    "sala": "SF_03",
+    "temperatura": 26.8,
+    "umidade": 60,
+    "vpd": 1,
+    "origem": "tuya:SF_03 (mock)",
+    "bateria_sensor": "high",
+    "sensor_online": true
+  },
+  {
+    "timestampOrigem": "2025-11-25T16:38:54.859Z",
+    "timestampServidor": "2025-11-25T16:38:54.861Z",
+    "sala": "SF_03",
+    "temperatura": 26.8,
+    "umidade": 60,
+    "vpd": 1,
+    "origem": "tuya:SF_03 (mock)",
+    "bateria_sensor": "high",
+    "sensor_online": true
+  },
+  {
+    "timestampOrigem": "2025-11-25T16:39:54.859Z",
+    "timestampServidor": "2025-11-25T16:39:54.860Z",
     "sala": "SF_03",
     "temperatura": 26.8,
     "umidade": 60,
