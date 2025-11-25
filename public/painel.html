@@ -1,422 +1,325 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <title>STEERIA • Painel de Salas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <head>
+    <meta charset="utf-8" />
+    <title>Steeria Core – Painel de Salas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <style>
-    :root {
-      --bg: #020617;
-      --bg-card: #020617;
-      --border: #1e293b;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --accent: #22c55e;
-      --error: #ef4444;
-    }
+    <!-- CSS principal -->
+    <link rel="stylesheet" href="./css/style.css" />
+    <style>
+      /* Ajustes rápidos específicos do painel (se quiser depois jogamos tudo pro style.css) */
 
-    * { box-sizing: border-box; }
+      body {
+        background: #05060a;
+        color: #f5f5f5;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro",
+          "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
 
-    body {
-      margin: 0;
-      padding: 24px;
-      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
-      color: var(--text);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-      transition: all 0.2s ease-out;
-      cursor: default;
-    }
+      .app-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
 
-    body.tv-mode {
-      padding: 16px;
-      cursor: none;
-    }
+      header {
+        padding: 16px 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
 
-    .layout {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+      header .title {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
 
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
+      header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
 
-    header h1 {
-      margin: 0;
-      font-size: 24px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
+      header .subtitle {
+        font-size: 0.85rem;
+        opacity: 0.7;
+      }
 
-    header h1 span {
-      opacity: 0.6;
-      font-weight: 400;
-    }
+      header .meta {
+        font-size: 0.8rem;
+        opacity: 0.7;
+        text-align: right;
+      }
 
-    .sub {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 4px;
-    }
+      main {
+        padding: 16px 24px 24px;
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+      }
 
-    .meta {
-      text-align: right;
-      font-size: 12px;
-      color: var(--muted);
-    }
+      .grid-salas {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+      }
 
-    .meta strong {
-      color: var(--text);
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 8px;
-      justify-content: flex-end;
-    }
-
-    button {
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(15,23,42,0.85);
-      color: var(--text);
-      padding: 6px 12px;
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: rgba(30,64,175,0.5);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    @media (max-width: 960px) {
-      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-
-    @media (max-width: 640px) {
-      .grid { grid-template-columns: 1fr; }
-    }
-
-    body.tv-mode .grid {
-      gap: 12px;
-    }
-
-    .card {
-      background: rgba(15,23,42,0.98);
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      padding: 14px 14px 10px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 18px 35px rgba(0,0,0,0.6);
-      cursor: pointer;
-      transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, border-color 0.15s;
-    }
-
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      border: 1px solid rgba(148,163,184,0.2);
-      mix-blend-mode: screen;
-      pointer-events: none;
-    }
-
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 20px 45px rgba(0,0,0,0.8);
-      border-color: #334155;
-    }
-
-    body.tv-mode .card {
-      transform: none;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .sala-code {
-      font-size: 11px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .sala-name {
-      font-size: 16px;
-      font-weight: 600;
-      margin-top: 2px;
-    }
-
-    .status-pill {
-      font-size: 10px;
-      text-transform: uppercase;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #6b7280;
-    }
-
-    .status-online {
-      border-color: rgba(34,197,94,0.5);
-      color: #bbf7d0;
-    }
-    .status-online .status-dot {
-      background: #22c55e;
-      box-shadow: 0 0 10px rgba(34,197,94,0.9);
-    }
-
-    .status-offline {
-      border-color: rgba(239,68,68,0.6);
-      color: #fecaca;
-    }
-    .status-offline .status-dot {
-      background: var(--error);
-      box-shadow: 0 0 10px rgba(239,68,68,0.8);
-    }
-
-    .status-vazio {
-      border-color: rgba(148,163,184,0.5);
-      color: var(--muted);
-    }
-
-    .metrics {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 4px;
-    }
-
-    .metric {
-      flex: 1;
-      background: rgba(15,23,42,0.9);
-      border-radius: 12px;
-      padding: 6px 8px;
-      border: 1px solid rgba(30,64,175,0.45);
-    }
-
-    .metric-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--muted);
-      margin-bottom: 2px;
-    }
-
-    .metric-value {
-      font-size: 16px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .metric-unit {
-      font-size: 11px;
-      opacity: 0.7;
-      margin-left: 2px;
-    }
-
-    .metric-small {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 8px;
-      margin-top: 6px;
-      font-size: 11px;
-      color: var(--muted);
-    }
-  </style>
-</head>
-<body>
-  <div class="layout">
-    <header>
-      <div>
-        <h1><span>STEERIA</span> • Painel de Salas</h1>
-        <div class="sub">
-          Endpoint: <code>/api/ambiente/latest</code> • Atualiza a cada 15s • Clique em uma sala para ver o detalhe
-        </div>
-      </div>
-      <div class="meta">
-        <div>Última atualização:</div>
-        <div id="meta-updated"><strong>–</strong></div>
-        <div class="actions">
-          <button id="tvToggleBtn">Modo TV</button>
-        </div>
-      </div>
-    </header>
-
-    <main>
-      <section class="grid" id="salas-grid"></section>
-    </main>
-  </div>
-
-  <script>
-    const SALAS = {
-      SG_01: { nome: "Germinação", cor: "#22c55e" },
-      SV_02: { nome: "Vegetação", cor: "#38bdf8" },
-      SF_03: { nome: "Floração", cor: "#a855f7" },
-      SC_04: { nome: "Secagem & Cura", cor: "#f97316" },
-    };
-
-    function formataData(ts) {
-      if (!ts) return "–";
-      const d = new Date(ts);
-      if (Number.isNaN(d.getTime())) return ts;
-      return d.toLocaleString("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    }
-
-    function criaCard(salaId, dados) {
-      const cfg = SALAS[salaId];
-      const card = document.createElement("article");
-      card.className = "card";
-      card.dataset.sala = salaId;
-
-      card.addEventListener("click", () => {
-        window.location.href = `/sala.html?sala=${encodeURIComponent(salaId)}`;
-      });
-
-      let statusClass = "status-vazio";
-      let statusLabel = "Sem dados";
-
-      if (dados) {
-        if (dados.sensor_online === true) {
-          statusClass = "status-online";
-          statusLabel = "Online";
-        } else if (dados.sensor_online === false) {
-          statusClass = "status-offline";
-          statusLabel = "Offline";
-        } else {
-          statusClass = "status-vazio";
-          statusLabel = "Sem info";
+      @media (max-width: 1024px) {
+        .grid-salas {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
       }
 
-      const temp = dados?.temperatura ?? null;
-      const ur = dados?.umidade ?? null;
-      const vpd = dados?.vpd ?? null;
-
-      card.innerHTML = `
-        <div class="card-header">
-          <div>
-            <div class="sala-code">${salaId}</div>
-            <div class="sala-name" style="color:${cfg.cor}">${cfg.nome}</div>
-          </div>
-          <div class="status-pill ${statusClass}">
-            <span class="status-dot"></span>
-            <span>${statusLabel}</span>
-          </div>
-        </div>
-        <div class="metrics">
-          <div class="metric">
-            <div class="metric-label">Temperatura</div>
-            <div class="metric-value">
-              ${temp != null ? temp.toFixed(1) : "–"}
-              <span class="metric-unit">°C</span>
-            </div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Umidade</div>
-            <div class="metric-value">
-              ${ur != null ? ur.toFixed(0) : "–"}
-              <span class="metric-unit">% UR</span>
-            </div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">VPD</div>
-            <div class="metric-value">
-              ${vpd != null ? vpd.toFixed(2) : "–"}
-              <span class="metric-unit">kPa</span>
-            </div>
-            <div class="metric-small">
-              ${dados ? "Origem: " + (dados.origem || "–") : ""}
-            </div>
-          </div>
-        </div>
-        <div class="footer">
-          <div>
-            ${dados?.bateria_sensor ? "Bateria: " + dados.bateria_sensor : ""}
-          </div>
-          <div>${dados ? formataData(dados.timestampServidor) : ""}</div>
-        </div>
-      `;
-
-      return card;
-    }
-
-    async function carregarPainel() {
-      try {
-        const res = await fetch("/api/ambiente/latest");
-        const json = await res.json();
-
-        document.getElementById("meta-updated").innerHTML =
-          "<strong>" + formataData(json.atualizadoEm) + "</strong>";
-
-        const grid = document.getElementById("salas-grid");
-        grid.innerHTML = "";
-
-        const salas = json.salas || {};
-        const ordem = ["SG_01", "SV_02", "SF_03", "SC_04"];
-
-        ordem.forEach((codigo) => {
-          const dadosSala = salas[codigo] || null;
-          const card = criaCard(codigo, dadosSala);
-          grid.appendChild(card);
-        });
-      } catch (e) {
-        console.error("Erro ao carregar painel:", e);
-        document.getElementById("meta-updated").innerHTML =
-          "<strong>Erro ao consultar API</strong>";
+      @media (max-width: 640px) {
+        .grid-salas {
+          grid-template-columns: minmax(0, 1fr);
+        }
       }
-    }
 
-    // Modo TV
-    const tvBtn = document.getElementById("tvToggleBtn");
-    tvBtn.addEventListener("click", () => {
-      document.body.classList.toggle("tv-mode");
-      tvBtn.textContent = document.body.classList.contains("tv-mode")
-        ? "Sair do modo TV"
-        : "Modo TV";
-    });
+      .card-sala {
+        background: radial-gradient(circle at top left, #1c2535, #05060a 65%);
+        border-radius: 16px;
+        padding: 16px 14px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.6);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
 
-    carregarPainel();
-    setInterval(carregarPainel, 15000);
-  </script>
-</body>
-</html>
+      .card-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+      }
+
+      .card-header .nome-sala {
+        font-size: 0.8rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        opacity: 0.75;
+      }
+
+      .card-header .codigo-sala {
+        font-size: 0.85rem;
+        font-weight: 600;
+        opacity: 0.9;
+      }
+
+      .card-main {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .metric-big {
+        font-size: 2rem;
+        font-weight: 600;
+        line-height: 1;
+      }
+
+      .metric-big span {
+        font-size: 0.9rem;
+        opacity: 0.7;
+        margin-left: 4px;
+      }
+
+      .metric-label {
+        font-size: 0.75rem;
+        opacity: 0.6;
+      }
+
+      .stacked-metrics {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 6px;
+      }
+
+      .pill {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.02);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+      }
+
+      .pill-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: #4ade80;
+      }
+
+      .pill-dot.offline {
+        background: #f97373;
+      }
+
+      .pill-tag {
+        opacity: 0.75;
+      }
+
+      .pill-value {
+        opacity: 0.95;
+      }
+
+      .card-footer {
+        font-size: 0.72rem;
+        opacity: 0.6;
+        margin-top: 4px;
+      }
+
+      .section-title {
+        margin: 20px 0 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .section-title h2 {
+        margin: 0;
+        font-size: 0.95rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        opacity: 0.8;
+      }
+
+      .section-title .controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+      }
+
+      select,
+      button {
+        background: #0b0f17;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #f5f5f5;
+        padding: 6px 10px;
+        font-size: 0.8rem;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      button:hover {
+        border-color: #38bdf8;
+      }
+
+      .historico-wrapper {
+        margin-top: 8px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: #05060a;
+        overflow: hidden;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.78rem;
+      }
+
+      thead {
+        background: #0b0f17;
+      }
+
+      th,
+      td {
+        padding: 6px 10px;
+        text-align: left;
+      }
+
+      th {
+        font-weight: 500;
+        opacity: 0.75;
+      }
+
+      tbody tr:nth-child(even) {
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      tbody tr:hover {
+        background: rgba(56, 189, 248, 0.06);
+      }
+
+      .badge-sala {
+        font-size: 0.68rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        opacity: 0.7;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header>
+        <div class="title">
+          <h1>STEERIA CORE</h1>
+          <div class="subtitle">Painel em tempo real · Ambientes de cultivo</div>
+        </div>
+        <div class="meta">
+          <div>Atualizado em: <span id="meta-atualizado">–</span></div>
+          <div>Refresh automático a cada 30s</div>
+        </div>
+      </header>
+
+      <main>
+        <!-- Cards das 4 salas -->
+        <section class="grid-salas">
+          <!-- SG_01 -->
+          <article class="card-sala" data-sala="SG_01">
+            <div class="card-header">
+              <div class="nome-sala">Germinação</div>
+              <div class="codigo-sala">SG_01</div>
+            </div>
+            <div class="card-main">
+              <div>
+                <div class="metric-label">Temperatura</div>
+                <div class="metric-big" id="SG_01-temp">–<span>°C</span></div>
+              </div>
+              <div class="stacked-metrics">
+                <div>
+                  <div class="metric-label">Umidade</div>
+                  <div id="SG_01-umid">– %</div>
+                </div>
+                <div>
+                  <div class="metric-label">VPD</div>
+                  <div id="SG_01-vpd">– kPa</div>
+                </div>
+              </div>
+            </div>
+            <div class="pill-row">
+              <span class="pill" id="SG_01-status-pill">
+                <span class="pill-dot offline"></span>
+                <span class="pill-tag">Sensor</span>
+                <span class="pill-value" id="SG_01-sensor">Offline</span>
+              </span>
+              <span class="pill">
+                <span class="pill-tag">Bateria</span>
+                <span class="pill-value" id="SG_01-bateria">–</span>
+              </span>
+              <span class="pill">
+                <span class="pill-tag">Origem</span>
+                <span class="pill-value" id="SG_01-origem">–_
